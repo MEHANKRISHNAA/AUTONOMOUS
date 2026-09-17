@@ -3,12 +3,23 @@
 # THIS repo via GITHUB_REPO=MEHANKRISHNAA/AUTONOMOUS in self_healing_cicd/.env.
 # `runs-on` below MUST match that service's LABELS (self-hosted,local) or jobs
 # queue forever - which self_healing_cicd detects as an INFRA_RUNNER incident.
+#
+# SECURITY: no `pull_request` trigger. This repo is Public and the runner is
+# self-hosted with the docker socket mounted (see docker-compose.yml) - a
+# pull_request trigger would let ANY GitHub user open a PR and have their
+# workflow code execute on this machine. push/workflow_dispatch only means
+# code only ever runs here because you (the only person with write access)
+# put it there.
+#
+# Third-party actions pinned to a commit SHA, not a mutable version tag - a
+# tag can be repointed (compromised upstream account, supply-chain attack)
+# and the next run would silently execute different code on this runner. The
+# version each SHA corresponds to is noted in a trailing comment.
 
 name: CI
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -18,15 +29,15 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4
 
       - name: Install dependencies
         run: uv pip install --system -r requirements.txt
@@ -46,10 +57,10 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
 
@@ -63,16 +74,16 @@ jobs:
         run: docker build -t codex-portfolio-frontend:ci .
 
   # Runs only after both build/test jobs succeed, and only on main - a feature
-  # branch or PR should never touch the running cluster. self_healing_cicd
-  # already watches every job here via the webhook (POST /webhooks/github) and
-  # the poller as a connectivity-free fallback, so a failure in this job is
-  # picked up with zero extra code, exactly like a failing test job.
+  # branch should never touch the running cluster. self_healing_cicd already
+  # watches every job here via the webhook (POST /webhooks/github) and the
+  # poller as a connectivity-free fallback, so a failure in this job is picked
+  # up with zero extra code, exactly like a failing test job.
   deploy:
     needs: [backend, frontend]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: [self-hosted, local]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # Tagged :local and pulled with imagePullPolicy: Never (see k8s/*.yaml) -
       # the runner is on the same Docker daemon the cluster reads images from,
