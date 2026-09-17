@@ -1,6 +1,6 @@
 import sqlite3
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
 
 from app.core.config import settings
 
