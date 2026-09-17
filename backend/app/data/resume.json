@@ -1,0 +1,179 @@
+{
+  "profile": {
+    "name": "Jayakrishnaa Subramaniyan Ravichandran",
+    "title": "AI Engineer / Data Scientist",
+    "location": "Chennai, India",
+    "email": "srkrishnaa0@gmail.com",
+    "phone": "+91-8220823704",
+    "years_experience": 4.2,
+    "summary": "AI engineer focused on LangGraph systems, RAG, NLP, production ML, and cloud-native automation. Builds practical GenAI products that combine model reasoning, deterministic guardrails, retrieval, memory, evaluation, and deployment.",
+    "links": {
+      "email": "mailto:srkrishnaa0@gmail.com",
+      "github": "",
+      "linkedin": ""
+    }
+  },
+  "skills": [
+    { "group": "Languages", "items": ["Python", "SQL", "R", "PySpark", "SAS", "SPSS"] },
+    { "group": "AI / ML", "items": ["NLP", "LLMs", "Classification", "Forecasting", "Recommendation Systems", "Computer Vision"] },
+    { "group": "Generative AI", "items": ["LangGraph", "RAG", "Prompt Engineering", "GPT-4o", "OpenAI API", "Convergence Scoring"] },
+    { "group": "Cloud / MLOps", "items": ["AWS", "SageMaker", "Bedrock", "Lambda", "Docker", "CI/CD", "MLflow"] }
+  ],
+  "experience": [
+    {
+      "title": "AI/ML Engineer",
+      "company": "Cavin Infotech",
+      "location": "Chennai",
+      "start": "Aug 2025",
+      "end": "Jun 2026",
+      "current": true,
+      "bullets": [
+        "Designed and shipped LangGraph-based conversational AI systems from architecture to deployment.",
+        "Built GPT-4o NLP and vision workflows for triage, symptom extraction, dynamic follow-up, and report interpretation.",
+        "Introduced convergence-score evaluation to catch response drift before release."
+      ]
+    },
+    {
+      "title": "Data Scientist",
+      "company": "KMU Techgrid Solutions",
+      "location": "Chennai",
+      "start": "Jan 2023",
+      "end": "Aug 2025",
+      "current": false,
+      "bullets": [
+        "Owned ML project lifecycles across finance, computer vision, chatbot, and cloud deployment work.",
+        "Built AWS-backed AI services using Bedrock, SageMaker, Lambda, and production-ready APIs.",
+        "Prototyped patient-monitoring and GenAI automation systems for internal use cases."
+      ]
+    },
+    {
+      "title": "Data Analyst",
+      "company": "KMU Techgrid Solutions",
+      "location": "Chennai",
+      "start": "Mar 2022",
+      "end": "Jan 2023",
+      "current": false,
+      "bullets": [
+        "Created analytics reports and stakeholder-facing dashboards for finance and computer vision projects.",
+        "Translated business requirements into measurable AI and BI workflows."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "vetassist-ai",
+      "name": "VetAssist AI",
+      "tagline": "Doctor-facing clinical diagnostic tool",
+      "description": "A guarded LangGraph workflow for veterinarians, moving case work through symptoms, test suggestions, result analysis, differential diagnosis, and treatment planning with evidence validation.",
+      "tags": ["LangGraph", "Healthcare AI", "Evidence Validation", "Vision"],
+      "role": "AI/ML Engineer",
+      "details": {
+        "problem": "Clinical workflows need ordered reasoning and verified evidence, not an open-ended chatbot that jumps straight to treatment.",
+        "approach": [
+          "LangGraph phase guards keep the clinician inside the correct case sequence.",
+          "Recommendations pass SOP, literature, and LLM reasoning checks before display.",
+          "Redis and MongoDB snapshots allow safe backward navigation through a case."
+        ],
+        "tech": [
+          { "group": "Orchestration", "items": ["LangGraph", "FastAPI"] },
+          { "group": "Models", "items": ["GPT-4o", "GPT-4o Vision"] },
+          { "group": "Memory", "items": ["Redis", "MongoDB"] }
+        ],
+        "architecture": [
+          { "label": "Clinician input", "detail": "Symptoms, notes, images, and reports.", "branches": [] },
+          { "label": "Phase graph", "detail": "State machine with guarded clinical progression.", "branches": ["Symptoms", "Tests", "Diagnosis", "Treatment"] },
+          { "label": "Evidence chain", "detail": "SOP match, literature lookup, and bounded model reasoning.", "branches": [] },
+          { "label": "Validated output", "detail": "Recommendation returned with support and confidence.", "branches": [] }
+        ],
+        "outcomes": [
+          "Recommendations are traceable to evidence.",
+          "Doctors can move backward without corrupting state.",
+          "Evaluation catches response regressions."
+        ]
+      }
+    },
+    {
+      "id": "pawspector-ai",
+      "name": "Pawspector AI",
+      "tagline": "Pet symptom triage chatbot",
+      "description": "A multi-graph triage assistant that routes free text and photos into specialized conversation graphs, with memory layers for resumable multi-pet sessions.",
+      "tags": ["LangGraph", "GPT-4o Vision", "Redis", "MongoDB"],
+      "role": "AI/ML Engineer",
+      "details": {
+        "problem": "Pet owners provide messy descriptions, partial context, and images. Keyword bots collapse under that variety.",
+        "approach": [
+          "A lightweight router chooses the right graph for text-first, photo-first, utility, or species-mismatch messages.",
+          "GPT-4o extracts symptoms and asks dynamic follow-up questions.",
+          "A three-layer memory stack prevents repeated model calls on returning sessions."
+        ],
+        "tech": [
+          { "group": "Conversation", "items": ["LangGraph", "Intent routing"] },
+          { "group": "Models", "items": ["GPT-4o", "Vision"] },
+          { "group": "State", "items": ["L1 cache", "Redis", "MongoDB"] }
+        ],
+        "architecture": [
+          { "label": "Owner message", "detail": "Free text, image, or both.", "branches": [] },
+          { "label": "Intent router", "detail": "Live routing without keyword-only logic.", "branches": [] },
+          { "label": "Specialized graph", "detail": "One focused graph handles the message shape.", "branches": ["Text", "Photo", "Utility", "Mismatch"] },
+          { "label": "Triage outcome", "detail": "Structured next step for the owner.", "branches": [] }
+        ],
+        "outcomes": [
+          "Conversations resume across multiple pets.",
+          "Repeated patterns use cached templates.",
+          "Photo and text triage share one memory system."
+        ]
+      }
+    },
+    {
+      "id": "self-healing-cicd",
+      "name": "Self-Healing CI/CD",
+      "tagline": "Policy-governed incident remediation",
+      "description": "A CI/CD incident system that classifies failures, runs evidence-based root cause analysis, and gates all remediation through deterministic policy.",
+      "tags": ["FastAPI", "Policy", "Automation", "MLOps"],
+      "role": "Designer and Builder",
+      "details": {
+        "problem": "Repetitive build and runtime failures waste engineering time, but an autonomous fixer needs strong boundaries before it can be trusted.",
+        "approach": [
+          "Rules-first classification handles common CI, Kubernetes, and live-site incidents.",
+          "A policy table assigns risk; the model never decides its own authority.",
+          "Low-risk remediations auto-run, while risky changes wait for approval."
+        ],
+        "tech": [
+          { "group": "Backend", "items": ["FastAPI", "Pydantic"] },
+          { "group": "Safety", "items": ["Risk policy", "Approval gate"] },
+          { "group": "Signals", "items": ["CI", "Kubernetes", "Site monitors"] }
+        ],
+        "architecture": [
+          { "label": "Signal", "detail": "CI, pod, or live-site alert arrives.", "branches": [] },
+          { "label": "Classify", "detail": "Rules identify the failure category.", "branches": [] },
+          { "label": "Policy", "detail": "Deterministic risk gate chooses auto or approval.", "branches": ["Auto", "Approval"] },
+          { "label": "Report", "detail": "Timeline and outcome are recorded.", "branches": [] }
+        ],
+        "outcomes": [
+          "Safe fixes can run without waiting.",
+          "Repository-changing actions are reviewable.",
+          "The same incident pipeline handles multiple signal sources."
+        ]
+      }
+    }
+  ],
+  "other_projects": [
+    { "name": "Maize Disease Detection", "category": "Computer Vision", "description": "CNN-based maize leaf disease classification." },
+    { "name": "Wine Quality Analysis", "category": "Predictive Modeling", "description": "Model comparison on physicochemical quality signals." },
+    { "name": "Road Sign Recognition", "category": "Embedded Vision", "description": "Raspberry Pi traffic-sign classifier connected to speed-control logic." }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Engineering, Electronics and Communication Engineering",
+      "institution": "PRIST University",
+      "start": "2013",
+      "end": "2017",
+      "highlights": []
+    }
+  ],
+  "languages_spoken": [
+    { "name": "Tamil", "level": "Fluent" },
+    { "name": "English", "level": "Fluent" }
+  ]
+}
+

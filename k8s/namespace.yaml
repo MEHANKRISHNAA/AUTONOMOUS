@@ -1,0 +1,8 @@
+# The namespace self_healing_cicd's pod_watcher/site_watcher are pointed at
+# via K8S_NAMESPACE / SITE_K8S_NAMESPACE. Deliberately distinct from
+# portfolio_website's "portfolio" namespace - this is a separate sandbox app,
+# not a second copy of the live portfolio.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: codex-portfolio

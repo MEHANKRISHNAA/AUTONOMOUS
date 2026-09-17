@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-portfolio-backend-config
+  namespace: codex-portfolio
+data:
+  # PORTFOLIO_ prefixed, not bare names: app/core/config.py sets
+  # env_prefix="PORTFOLIO_" (unlike portfolio_website's own Settings, which
+  # has no prefix) - a bare FAIL_ON_BOOT here would silently no-op.
+  PORTFOLIO_ENVIRONMENT: "local"
+  PORTFOLIO_CORS_ORIGINS: "http://localhost:30090,http://127.0.0.1:30090"
+  # Demo failure toggles - all default OFF. Flip one and re-apply (or
+  # `kubectl set env`) to make a pod fail for real. See backend/app/core/config.py
+  # and backend/app/main.py for exactly what each one does.
+  PORTFOLIO_FAIL_ON_BOOT: "false"
+  PORTFOLIO_FLAKY_BOOT: "false"
+  PORTFOLIO_SLOW_RESPONSE: "false"
+  PORTFOLIO_LOAD_TEST: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-portfolio-frontend-config
+  namespace: codex-portfolio
+data:
+  # The frontend pod proxies /api to the backend Service by name (see
+  # frontend/nginx.conf's `proxy_pass http://backend:8000/`), so no
+  # API_BASE_URL override is needed here - the container default of "/api"
+  # already resolves correctly inside the cluster.
+  PLACEHOLDER: "unused"

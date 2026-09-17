@@ -1,0 +1,18 @@
+# Secrets - none should live here, but never risk it.
+.env
+.env.local
+
+# Python
+backend/.venv/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/contact_messages.db
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+
+# OS noise
+.DS_Store
+Thumbs.db

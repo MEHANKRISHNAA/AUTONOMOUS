@@ -1,0 +1,74 @@
+# Resource limits are DELIBERATELY tight - 128Mi is enough for normal FastAPI
+# traffic but leaves no headroom once LOAD_TEST=true starts allocating 2MB per
+# request (see backend/app/main.py). That is the point: flipping LOAD_TEST on
+# is what reliably reproduces OOMKilled for the self_healing_cicd demo.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: codex-portfolio
+  labels:
+    app: codex-portfolio-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codex-portfolio-backend
+  template:
+    metadata:
+      labels:
+        app: codex-portfolio-backend
+    spec:
+      containers:
+        - name: backend
+          # Built locally with `docker build -t codex-portfolio-backend:local ./backend`.
+          # imagePullPolicy: Never means Kubernetes uses exactly that local
+          # image instead of trying to pull from a registry.
+          image: codex-portfolio-backend:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: codex-portfolio-backend-config
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: codex-portfolio
+spec:
+  # NodePort, not the ClusterIP default: self_healing_cicd's site_watcher (and
+  # the GitHub Actions cron prober) run OUTSIDE this cluster and probe
+  # {SITE_BASE_URL}/health and /metrics directly on the backend, not through
+  # the frontend's /api proxy - so it needs a port reachable from outside.
+  #
+  # 30091, not portfolio_website's 30081: two Docker Desktop Kubernetes
+  # clusters share one node, so NodePorts across every namespace must be
+  # unique cluster-wide, not just within codex-portfolio.
+  type: NodePort
+  selector:
+    app: codex-portfolio-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30091   # http://localhost:30091 on Docker Desktop Kubernetes
