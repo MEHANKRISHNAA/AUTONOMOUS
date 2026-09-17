@@ -1,0 +1,94 @@
+# Runs on the self-hosted runner registered by self_healing_cicd's own
+# docker-compose.yml (the `runner:` service, `--profile real`), pointed at
+# THIS repo via GITHUB_REPO=MEHANKRISHNAA/AUTONOMOUS in self_healing_cicd/.env.
+# `runs-on` below MUST match that service's LABELS (self-hosted,local) or jobs
+# queue forever - which self_healing_cicd detects as an INFRA_RUNNER incident.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    runs-on: [self-hosted, local]
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv pip install --system -r requirements.txt
+
+      - name: Lint (ruff)
+        run: uvx ruff check app
+
+      - name: Test
+        run: pytest -q
+
+      - name: Build backend image
+        run: docker build -t codex-portfolio-backend:ci .
+
+  frontend:
+    runs-on: [self-hosted, local]
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (typecheck + bundle)
+        run: npm run build
+
+      - name: Build frontend image
+        run: docker build -t codex-portfolio-frontend:ci .
+
+  # Runs only after both build/test jobs succeed, and only on main - a feature
+  # branch or PR should never touch the running cluster. self_healing_cicd
+  # already watches every job here via the webhook (POST /webhooks/github) and
+  # the poller as a connectivity-free fallback, so a failure in this job is
+  # picked up with zero extra code, exactly like a failing test job.
+  deploy:
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: [self-hosted, local]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tagged :local and pulled with imagePullPolicy: Never (see k8s/*.yaml) -
+      # the runner is on the same Docker daemon the cluster reads images from,
+      # so there is no registry in this loop at all.
+      - name: Build deployable images
+        run: |
+          docker build -t codex-portfolio-backend:local ./backend
+          docker build -t codex-portfolio-frontend:local ./frontend
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f k8s/
+
+      # Proves the rollout actually reached Ready, not merely that `kubectl
+      # apply` was accepted - a manifest can apply cleanly and never reach
+      # Ready (bad image tag, failing readiness probe, OOM at startup).
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/backend -n codex-portfolio --timeout=120s
+          kubectl rollout status deployment/frontend -n codex-portfolio --timeout=120s
